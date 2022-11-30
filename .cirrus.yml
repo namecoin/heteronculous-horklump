@@ -11,7 +11,7 @@ task:
   name: "Starting TASKS: $TASK_NUMBER $CI_DISTRO"
   matrix:
     - container:
-        image: debian:lastest
+        image: debian:latest
         cpu: 1
         memory: 1G
       package_install_script:
