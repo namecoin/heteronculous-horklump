@@ -50,5 +50,5 @@ task:
       env:
         CI_DISTRO: debian
         TASK_NUMBER: Task_One
-      test_script:
-        - testdata/starting_tasks.bash
+  test_script:
+    - testdata/starting_tasks.bash
