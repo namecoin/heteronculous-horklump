@@ -3,9 +3,8 @@
 set -euo pipefail
 shopt -s nullglob globstar
 
-git clone -b starting_tasks https://github.com/namecoin/heteronculous-horklump && cd heteronculous-horklump
-cd Starting_Tasks
-cd "$TASK_NUMBER"/Testing_application
+git clone -b starting_tasks https://github.com/namecoin/heteronculous-horklump 
+cd heteronculous-horklump/Starting_Tasks/"$TASK_NUMBER"/Testing_application
 export GOBIN="$PWD" && go install hello.go
 cd ..
 
