@@ -20,17 +20,10 @@ task:
         - apt-get install -y git
       env:
         CI_DISTRO: debian
-        TASK_NUMBER: Task_One
-    - container:
-        image: debian:latest
-        cpu: 1
-        memory: 1G
-      package_install_script:
-        - apt-get update
-        - apt-get install -y golang-go
-        - apt-get install -y git
-      env:
-        CI_DISTRO: debian
-        TASK_NUMBER: Task_Two
+      matrix:
+        - env:
+            TASK_NUMBER: Task_One
+        - env:
+            TASK_NUMBER: Task_Two
   test_script:
     - testdata/starting_tasks.bash
