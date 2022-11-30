@@ -25,5 +25,19 @@ task:
             TASK_NUMBER: Task_One
         - env:
             TASK_NUMBER: Task_Two
+    - container:
+        image: fedora:latest
+        cpu: 1
+        memory: 1G
+      package_install_script:
+        - dnf install -y golang-go
+        - dnf install -y git
+      env:
+        CI_DISTRO: fedora
+      matrix:
+        - env:
+            TASK_NUMBER: Task_One
+        - env:
+            TASK_NUMBER: Task_Two
   test_script:
     - testdata/starting_tasks.bash
