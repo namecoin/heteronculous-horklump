@@ -8,39 +8,6 @@ task:
   lint_script: bash testdata/shellcheck.bash
 
 task:
-  alias: Go Lint
-  container:
-    image: golangci/golangci-lint:latest
-  fetch_script:
-    - go mod init github.com/"$CIRRUS_REPO_FULL_NAME"
-    - go mod tidy
-    - go generate ./...
-    - go mod tidy
-# interfacebloat complains about miekg/pkcs11 API's that we can't change.
-# nosnakecase complains about miekg/pkcs11 API's that we can't change.
-  lint_script:
-    - git clone https://github.com/$CIRRUS_REPO_FULL_NAME/
-    - cd $CIRRUS_REPO_FULL_NAME
-    # nosnakecase complains about stdlib API's that we can't change.
-    - golangci-lint run --enable-all --disable execinquery,exhaustruct,gochecknoglobals,gomnd,interfacer,nosnakecase $GOLANGCI_ARGS $GOLANGCI_MODULES_ARGS -v --timeout 5m --out-format json > $CIRRUS_WORKING_DIR/lint-report.json
-  matrix:
-    - name: Go Lint New
-      env:
-        GOLANGCI_ARGS: "--new-from-rev=HEAD~"
-    - name: Go Lint Mandatory
-      env:
-        GOLANGCI_ARGS: "--disable=cyclop,dupl,gci,godox,goerr113,gomnd,gosimple,ifshort,lll,nlreturn,nosnakecase,revive,varnamelen,wrapcheck"
-    - name: Go Lint
-      env:
-        GOLANGCI_ARGS: ""
-      allow_failures: true
-  always:
-    golangci_artifacts:
-      path: lint-report.json
-      type: text/json
-      format: golangci
-
-task:
   name: "Starting TASKS: $TASK_NUMBER $CI_DISTRO"
   matrix:
     - container:
