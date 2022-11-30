@@ -49,11 +49,6 @@ task:
         - apt-get install -y git
       env:
         CI_DISTRO: debian
-      matrix:
-        - env:
-            TASK_NUMBER: Task_One
-        - env:
-            TASK_NUMBER: Task_Two
-
+        TASK_NUMBER: Task_One
       test_script:
         - testdata/starting_tasks.bash
