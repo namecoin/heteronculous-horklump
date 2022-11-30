@@ -19,7 +19,8 @@ task:
 # interfacebloat complains about miekg/pkcs11 API's that we can't change.
 # nosnakecase complains about miekg/pkcs11 API's that we can't change.
   lint_script:
-    - cd $(go env GOPATH)/src/github.com/$CIRRUS_REPO_FULL_NAME/
+    - git clone https://github.com/$CIRRUS_REPO_FULL_NAME/
+    - cd $CIRRUS_REPO_FULL_NAME
     # nosnakecase complains about stdlib API's that we can't change.
     - golangci-lint run --enable-all --disable execinquery,exhaustruct,gochecknoglobals,gomnd,interfacer,nosnakecase $GOLANGCI_ARGS $GOLANGCI_MODULES_ARGS -v --timeout 5m --out-format json > $CIRRUS_WORKING_DIR/lint-report.json
   matrix:
