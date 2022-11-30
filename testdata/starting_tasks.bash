@@ -3,7 +3,7 @@
 set -euo pipefail
 shopt -s nullglob globstar
 
-git clone -b starting_tasks https://github.com/namecoin/heteronculous-horklump 
+git clone -b starting_tasks "$CIRRUS_REPO_CLONE_URL"
 cd heteronculous-horklump/Starting_Tasks/"$TASK_NUMBER"/Testing_application
 export GOBIN="$PWD" && go install hello.go
 cd ..
