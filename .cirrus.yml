@@ -8,7 +8,7 @@ task:
   lint_script: bash testdata/shellcheck.bash
 
 task:
-  name: "Starting TASKS: $TASK_NUMBER $CI_DISTRO"
+  name: "Task One $CI_DISTRO"
   matrix:
     - container:
         image: debian:latest
@@ -20,11 +20,6 @@ task:
         - apt-get install -y git
       env:
         CI_DISTRO: debian
-      matrix:
-        - env:
-            TASK_NUMBER: Task_One
-        - env:
-            TASK_NUMBER: Task_Two
     - container:
         image: fedora:latest
         cpu: 1
@@ -34,10 +29,31 @@ task:
         - dnf install -y git
       env:
         CI_DISTRO: fedora
-      matrix:
-        - env:
-            TASK_NUMBER: Task_One
-        - env:
-            TASK_NUMBER: Task_Two
   test_script:
-    - testdata/starting_tasks.bash
+    - testdata/taskone.bash
+
+task:
+  name: "Task Two $CI_DISTRO"
+  matrix:
+    - container:
+        image: debian:latest
+        cpu: 1
+        memory: 1G
+      package_install_script:
+        - apt-get update
+        - apt-get install -y golang-go
+        - apt-get install -y git
+      env:
+        CI_DISTRO: debian
+    - container:
+        image: fedora:latest
+        cpu: 1
+        memory: 1G
+      package_install_script:
+        - dnf install -y golang-go
+        - dnf install -y git
+      env:
+        CI_DISTRO: fedora
+  test_script:
+    - testdata/tasktwo.bash
+
