@@ -21,8 +21,9 @@ func SocketSysCalls(r *strace.TraceRecord) error{
 	"getpeername":{},"socketpair":{},"send":{},"recv":{},"sendto":{},"recvfrom":{},"shutdown":{},"setsockopt":{},
 	"getsockopt":{},"sendmsg":{},"recvmsg":{},"accept4":{},"recvmmsg":{},"sendmmsg":{}}
 
-	// Getting the name of the Socket System Call.
+	// Get the name of the Socket System Call
 	SyscallName, _ := strace.ByNumber(uintptr(r.Syscall.Sysno))
+	// Check if it's a Socket System Call
 	if _, err := socketfunctions[SyscallName]; !err {
 		return nil
 	}
