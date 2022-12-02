@@ -7,21 +7,17 @@ import (
 )
 
 func main() {
-	if err := strace.Trace(exec.Command("Testing_application/hello"), func(t strace.Task, record *strace.TraceRecord) error {
-		switch record.Event {
-		case strace.SyscallEnter:
-			fmt.Printf("System Call Detected: [PID : %d] System Call Enter Event\n", record.PID)
-		case strace.SyscallExit:
-			fmt.Printf("System Call Detected: [PID : %d] System Call Exit Event\n", record.PID)
-		case strace.SignalExit:
-			fmt.Printf("System Call Detected: PID %d exited from signal\n", record.PID)
-		case strace.Exit:
-			fmt.Printf("System Call Detected: PID %d exited from exit status %d (code = %d)\n", record.PID, record.Exit.WaitStatus, record.Exit.WaitStatus.ExitStatus())
-		case strace.SignalStop:
-			fmt.Printf("System Call Detected: PID %d got signal\n", record.PID)
-		case strace.NewChild:
-			fmt.Printf("System Call Detected: PID %d spawned new child %d\n", record.PID, record.NewChild.PID)
+	socketfunctions := map[string]struct{}{"socket":{},"bind":{},"connect":{},"listen":{},"accept":{},"getsockname":{},
+	"getpeername":{},"socketpair":{},"send":{},"recv":{},"sendto":{},"recvfrom":{},"shutdown":{},"setsockopt":{},
+	"getsockopt":{},"sendmsg":{},"recvmsg":{},"accept4":{},"recvmmsg":{},"sendmmsg":{}}
+	
+	if err := strace.Trace(exec.Command("ping","google.com"), func(t strace.Task, record *strace.TraceRecord) error {
+		SyscallName, _ := strace.ByNumber(uintptr(record.Syscall.Sysno))
+		if _, err := socketfunctions[SyscallName]; !err {
+			return nil
 		}
+
+		fmt.Printf("Detect a Socket System Call: %v", SyscallName)
 		return nil
 	}); err != nil {
 		panic(err)
