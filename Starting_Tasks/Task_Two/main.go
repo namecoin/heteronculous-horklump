@@ -19,7 +19,7 @@ func main() {
 			return nil
 		}
 
-		fmt.Printf("Detected a Socket System Call: %v", SyscallName)
+		fmt.Printf("Detected a Socket System Call: %v\n", SyscallName)
 		return nil
 	}); err != nil {
 		panic(err)
