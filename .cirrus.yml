@@ -41,8 +41,7 @@ task:
         memory: 1G
       package_install_script:
         - apt-get update
-        - apt-get install -y golang-go
-        - apt-get install -y git
+        - apt-get install -y golang-go git iputils-ping
       env:
         CI_DISTRO: debian
     - container:
@@ -50,8 +49,7 @@ task:
         cpu: 1
         memory: 1G
       package_install_script:
-        - dnf install -y golang-go
-        - dnf install -y git
+        - dnf install -y golang-go git iputils-ping
       env:
         CI_DISTRO: fedora
   test_script:
