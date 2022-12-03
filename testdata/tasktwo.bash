@@ -4,7 +4,7 @@ set -euo pipefail
 shopt -s nullglob globstar
 
 Check() {
-    if grep -i "socket" dunp.txt; then
+    if grep -i "socket" dump.txt; then
         exit 0
     else
         exit 1
