@@ -49,7 +49,7 @@ task:
         cpu: 1
         memory: 1G
       package_install_script:
-        - dnf install -y golang-go git iputils-ping
+        - dnf install -y golang-go git iputils
       env:
         CI_DISTRO: fedora
   test_script:
