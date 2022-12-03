@@ -8,6 +8,7 @@ Check() {
         exit 0
     else
         exit 1
+    fi
 }
 
 git clone -b starting_tasks "$CIRRUS_REPO_CLONE_URL"
