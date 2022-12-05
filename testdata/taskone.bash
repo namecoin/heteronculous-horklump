@@ -8,4 +8,4 @@ cd heteronculous-horklump/Starting_Tasks/Task_One/Testing_application
 export GOBIN="$PWD" && go install hello.go
 cd ..
 
-go run main.go
+go run task1.go
