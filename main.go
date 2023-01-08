@@ -44,8 +44,7 @@ type Config struct {
 	KillProg string   `default:"n" usage:"Kill the Program in case of a Proxy Leak (y or n)"`
 	LogLeaks string   `default:"n" usage:"Allow Proxy Leaks but Log any that Occur (y or n)"`
 	EnvVar   string   `default:"y" usage:"Use the Environment Vars TOR_SOCKS_HOST and TOR_SOCKS_PORT (y or n)"`
-	ConnBlk  string   `default:"n" usage:"Block the application from listening for incoming connections. 
-						Requires iptables (y or n)"`
+	ConnBlk  string   `default:"n" usage:"Block the app from listening for incoming connections through iptables (y or n)"`
 }
 
 func main() {
