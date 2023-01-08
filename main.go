@@ -44,6 +44,7 @@ type Config struct {
 	KillProg string   `default:"n" usage:"Kill the Program in case of a Proxy Leak (y or n)"`
 	LogLeaks string   `default:"n" usage:"Allow Proxy Leaks but Log any that Occur (y or n)"`
 	EnvVar   string   `default:"y" usage:"Use the Environment Vars TOR_SOCKS_HOST and TOR_SOCKS_PORT (y or n)"`
+	ConnBlk  string	  `default:"n" usage:"Block the application from listening for incoming connections by blocking the port. Requires iptables (y or n)"`
 }
 
 func main() {
@@ -82,6 +83,11 @@ func HandleConnect(task strace.Task, record *strace.TraceRecord, program *exec.C
 	if IPPort == cfg.SocksTCP || ip == "/var/run/nscd/socket" { //nolint
 		fmt.Printf("Connecting to %v\n", IPPort) //nolint
 	} else {
+		if strings.ToLower(cfg.ConnBlk) == "y" {
+			if err := BlockConnections(port); err !=  nil {
+				panic(err)
+			}
+		}
 		if strings.ToLower(cfg.LogLeaks) == "y" {
 			log.Warnf("Proxy Leak detected, but allowed : %v", IPPort)
 			return nil
@@ -209,4 +215,15 @@ func SetEnv(socks string, host string, port string) string {
 	default:
 		return socks
 	}
+}
+
+func BlockConnections(port string) error {
+	os.Setenv("TOR_SOCKS_HOST", port)
+	_, err := exec.Command("/bin/sh", "testdata/connection-block.sh").Output()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Blocking the application from listening for incoming connections. Blocking port : %v",port)
+	return nil
 }
