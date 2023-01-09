@@ -225,7 +225,7 @@ func BlockConnections(port string) error {
 		return err
 	}
 
-	fmt.Printf("Blocking the application from listening for incoming connections. Blocking port : %v", port) //nolint
+	fmt.Printf("Blocking the application from listening for incoming connections. Blocking port : %v\n", port) //nolint
 
 	return nil
 }
