@@ -1,0 +1,196 @@
+---
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  golangci-lint:
+    name: Go Lint (${{ matrix.name }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: New
+            args: >
+              --new-from-rev=HEAD~
+          - name: Mandatory
+            args: >
+              --disable=cyclop,dupl,godox,err113,mnd,staticcheck,lll,revive,varnamelen,wrapcheck
+          - name: Full
+            args: ""
+            continue-on-error: true
+
+    continue-on-error: ${{ matrix.continue-on-error || false }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libseccomp-dev \
+            pkg-config \
+            build-essential
+
+      - name: Prepare modules
+        run: |
+          go env -w GO111MODULE=on
+          go mod download
+          go mod tidy
+          go generate ./...
+          go mod tidy
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.4.0
+          args: >
+            --timeout=5m
+            --default=all
+            --disable=exhaustruct,gochecknoglobals,gochecknoinits,interfacebloat,gomoddirectives,lll,godot,tagalign,godox,depguard,funlen,gocognit,gosec,nestif,noinlineerr,cyclop,err113,mnd,varnamelen
+            ${{ matrix.args }}
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: bash testdata/shellcheck.bash
+
+  socks-tests:
+    name: Socksification Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            wget \
+            curl \
+            libseccomp-dev \
+            pkg-config \
+            build-essential
+
+      - name: Build project
+        run: |
+          go mod tidy
+          go build -o sockstrace .
+          cd testdata
+          go mod tidy
+
+      - name: Start SOCKS5 server
+        run: |
+          (
+            cd testdata
+            go run socks5_server.go &
+          )
+          sleep 3
+
+      - name: WGET SOCKS auth test
+        run: |
+          ./sockstrace wget \
+            --args "https://check.torproject.org" \
+            --proxy-pass pass \
+            --proxy-user user
+
+      - name: CURL SOCKS auth test
+        run: |
+          ./sockstrace curl \
+            --args "https://check.torproject.org" \
+            --proxy-pass pass \
+            --proxy-user user
+
+  firefox-webrtc-test:
+    name: WebRTC Firefox Test
+    runs-on: ubuntu-latest
+
+    env:
+      NO_AUTH: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - name: Install dependencies
+        run: |
+          sudo add-apt-repository -y ppa:mozillateam/ppa
+          {
+            echo 'Package: *'
+            echo 'Pin: release o=LP-PPA-mozillateam'
+            echo 'Pin-Priority: 1001'
+          } | sudo tee /etc/apt/preferences.d/mozilla-firefox
+
+          sudo apt-get update
+          sudo apt-get install -y \
+            firefox-esr \
+            libseccomp-dev \
+            pkg-config \
+            build-essential
+
+      - name: Build project
+        run: |
+          go mod tidy
+          go build -o sockstrace .
+          cd testdata
+          go mod tidy
+
+      - name: Start SOCKS5 server
+        run: |
+          (
+            cd testdata
+            go run socks5_server.go &
+          )
+          sleep 3
+
+      - name: Setup Firefox profile
+        run: |
+          bash testdata/setup_firefox_profile.sh
+
+      - name: Run Firefox WebRTC test
+        run: |
+          echo "Testing Firefox via SOCKS5 proxy..."
+          timeout 60 ./sockstrace firefox \
+            --args "https://browserleaks.com/webrtc" \
+            --args "-P" \
+            --args "proxy-profile" \
+            --args "--headless" \
+            --logleaks || [ $? -eq 124 ]
